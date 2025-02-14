@@ -1,0 +1,101 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Dancing Script', cursive;
+  }
+  
+  /* Background canvas styling */
+  #backgroundCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Ensure it's behind all content */
+  }
+  
+  .container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  
+  /* Heart styling with a gradient and increased size */
+  .heart {
+    position: relative;
+    width: 150px;
+    height: 135px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .heart:before,
+  .heart:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 75px;
+    height: 120px;
+    background: linear-gradient(45deg, #e74c3c, #ff9a9e);
+    border-radius: 50px 50px 0 0;
+  }
+  
+  .heart:before {
+    left: 75px;
+    transform: rotate(-45deg);
+    transform-origin: 0 100%;
+  }
+  
+  .heart:after {
+    left: 0;
+    transform: rotate(45deg);
+    transform-origin: 100% 100%;
+  }
+  
+  .heart:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Pulse animation on click */
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  
+  .heart.pulse {
+    animation: pulse 0.3s ease;
+  }
+  
+  /* Floating elements styling */
+  .floating {
+    position: absolute;
+    font-size: 24px;
+    font-weight: bold;
+    color: #e74c3c;
+    pointer-events: none;
+    animation: floatUp 2s ease-out forwards;
+  }
+  
+  @keyframes floatUp {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--translateX, 0), -150px) scale(1.5);
+    }
+  }
+  
