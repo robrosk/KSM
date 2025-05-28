@@ -15,8 +15,11 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // Calculate and display days together
     function updateDaysCounter() {
-      const today = new Date();
-      const timeDiff = today.getTime() - relationshipStart.getTime();
+      // Get current date in Eastern Time
+      const today = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+      const todayEastern = new Date(today);
+      
+      const timeDiff = todayEastern.getTime() - relationshipStart.getTime();
       const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
       daysCounter.textContent = daysDiff;
     }
