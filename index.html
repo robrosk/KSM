@@ -3,18 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Interactive Valentine's Day Heart</title>
+  <title>Our Story</title>
   <!-- Google Font for nice text messages -->
   <link href="https://fonts.googleapis.com/css?family=Dancing+Script:700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <!-- Background canvas for interactive particles -->
   <canvas id="backgroundCanvas"></canvas>
   
+  <!-- Days together counter -->
+  <div class="days-counter">
+    <div class="counter-text">Days of loving you</div>
+    <div class="counter-number" id="daysCounter">0</div>
+  </div>
+
+  <!-- Music controls -->
+  <div class="music-controls">
+    <button id="musicToggle" class="music-btn">🎵</button>
+    <audio id="backgroundMusic" loop>
+      <source src="Songs/2cigarettesAfterSex-Apocalypse.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
   <div class="container">
     <!-- The interactive heart element -->
     <div class="heart" id="heart"></div>
+    
+    <!-- Photo gallery that appears on heart click -->
+    <div class="photo-gallery" id="photoGallery">
+      <div class="gallery-container">
+        <button class="close-gallery" id="closeGallery">×</button>
+        <div class="photo-slider">
+          <div class="photo-slide active">
+            <img src="Images/Me&Kelly.jpg" alt="Me and Kelly">
+            <p class="photo-caption">I love and miss you more everyday.  Can't wait to see you again :)</p>
+          </div>
+          <!-- <div class="photo-slide">
+            <img src="Images/Me&Kelly.jpg" alt="Our Love">
+            <p class="photo-caption"> </p>
+          </div>
+          <div class="photo-slide">
+            <img src="Images/Me&Kelly.jpg" alt="Forever">
+            <p class="photo-caption"> </p>
+          </div> -->
+        </div>
+        <button class="nav-btn prev" id="prevPhoto">‹</button>
+        <button class="nav-btn next" id="nextPhoto">›</button>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
