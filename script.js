@@ -35,15 +35,13 @@ document.addEventListener("DOMContentLoaded", function () {
   
     // Enhanced array of personal messages
     const messages = [
-      "Kelly is my everything! 💕",
-      "You make every day brighter",
+      "Kelly is my everything!",
+      "You make every day better",
       "Forever grateful for you",
       "You're my favorite person",
-      "My beautiful Kelly",
-      "You're my happy place",
       "XOXO",
       "Best girlfriend ever!",
-      "Lucky to love you 🍀",
+      "Lucky to love you",
     ];
 
     // Photo gallery functionality
@@ -111,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
       startPhotoSlideshow();
       
       // Generate floating elements
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 4; i++) {
         createFloatingElement();
       }
       heart.classList.add("pulse");
@@ -200,10 +198,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // Array to store particle objects
     const particles = [];
     const maxParticles = 150;
-    
+  
     // Array to store cursor trail particles
     const trailParticles = [];
     const maxTrailParticles = 50;
+  
+    // Array to store text formation particles
+    const textParticles = [];
+    let isFormingText = false;
   
     // Enhanced Particle constructor with more variety
     function Particle(x, y) {
@@ -320,6 +322,16 @@ document.addEventListener("DOMContentLoaded", function () {
           i--;
         }
       }
+      
+      // Handle text formation particles
+      for (let i = 0; i < textParticles.length; i++) {
+        textParticles[i].update();
+        textParticles[i].draw();
+        if (textParticles[i].phase === 'dissolving' && textParticles[i].alpha <= 0.01) {
+          textParticles.splice(i, 1);
+          i--;
+        }
+      }
     }
   
     // Main animation loop for the background
@@ -334,9 +346,16 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("mousemove", function (e) {
       // Create regular colored particles (fewer)
       for (let i = 0; i < 2; i++) {
-        particles.push(new Particle(e.clientX, e.clientY));
-        if (particles.length > maxParticles) {
-          particles.shift();
+        const particle = new Particle(e.clientX, e.clientY);
+        
+        // If text is forming, attract this particle to the text
+        if (window.currentTextPixels && window.currentTextPixels.length > 0) {
+          attractParticleToText(particle);
+        } else {
+          particles.push(particle);
+          if (particles.length > maxParticles) {
+            particles.shift();
+          }
         }
       }
       
@@ -344,9 +363,16 @@ document.addEventListener("DOMContentLoaded", function () {
       for (let i = 0; i < 10; i++) {
         const offsetX = (Math.random() - 0.5) * 30;
         const offsetY = (Math.random() - 0.5) * 30;
-        trailParticles.push(new TrailParticle(e.clientX + offsetX, e.clientY + offsetY));
-        if (trailParticles.length > maxTrailParticles) {
-          trailParticles.shift();
+        const trailParticle = new TrailParticle(e.clientX + offsetX, e.clientY + offsetY);
+        
+        // If text is forming, attract this particle to the text
+        if (window.currentTextPixels && window.currentTextPixels.length > 0) {
+          attractParticleToText(trailParticle, true);
+        } else {
+          trailParticles.push(trailParticle);
+          if (trailParticles.length > maxTrailParticles) {
+            trailParticles.shift();
+          }
         }
       }
     });
@@ -357,9 +383,16 @@ document.addEventListener("DOMContentLoaded", function () {
       
       // Create regular colored particles
       for (let i = 0; i < 2; i++) {
-        particles.push(new Particle(touch.clientX, touch.clientY));
-        if (particles.length > maxParticles) {
-          particles.shift();
+        const particle = new Particle(touch.clientX, touch.clientY);
+        
+        // If text is forming, attract this particle to the text
+        if (window.currentTextPixels && window.currentTextPixels.length > 0) {
+          attractParticleToText(particle);
+        } else {
+          particles.push(particle);
+          if (particles.length > maxParticles) {
+            particles.shift();
+          }
         }
       }
       
@@ -367,9 +400,16 @@ document.addEventListener("DOMContentLoaded", function () {
       for (let i = 0; i < 6; i++) {
         const offsetX = (Math.random() - 0.5) * 20;
         const offsetY = (Math.random() - 0.5) * 20;
-        trailParticles.push(new TrailParticle(touch.clientX + offsetX, touch.clientY + offsetY));
-        if (trailParticles.length > maxTrailParticles) {
-          trailParticles.shift();
+        const trailParticle = new TrailParticle(touch.clientX + offsetX, touch.clientY + offsetY);
+        
+        // If text is forming, attract this particle to the text
+        if (window.currentTextPixels && window.currentTextPixels.length > 0) {
+          attractParticleToText(trailParticle, true);
+        } else {
+          trailParticles.push(trailParticle);
+          if (trailParticles.length > maxTrailParticles) {
+            trailParticles.shift();
+          }
         }
       }
     });
@@ -386,6 +426,198 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     // Create ambient particles every few seconds
-    setInterval(createAmbientParticles, 3000);
+    setInterval(createAmbientParticles, 8000);
+    
+    // Create "I love you Kelly" text formation every 3 minutes
+    setInterval(createTextFormation, 3 * 60 * 1000);
+    
+    // Also create text formation 5 seconds after page load for immediate demo
+    setTimeout(createTextFormation, 5000);
+    
+    // Function to attract new particles to the text
+    function attractParticleToText(particle, isTrailParticle = false) {
+      if (!window.currentTextPixels || window.currentTextPixels.length === 0) return;
+      
+      const randomIndex = Math.floor(Math.random() * window.currentTextPixels.length);
+      const targetPos = window.currentTextPixels[randomIndex];
+      
+      const textParticle = new TextParticle(targetPos.x, targetPos.y);
+      textParticle.x = particle.x;
+      textParticle.y = particle.y;
+      textParticle.size = particle.size || 3;
+      
+      if (isTrailParticle) {
+        textParticle.originalColor = '#ffffff';
+      } else {
+        textParticle.originalColor = particle.color || '#ff69b4';
+      }
+      
+      textParticles.push(textParticle);
+    }
+
+    // Text formation system - sucks in existing particles
+    function createTextFormation() {
+      if (isFormingText) return;
+      
+      isFormingText = true;
+      const text = "I love you Kelly";
+      const fontSize = 48;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height * 0.75; // Position at 75% down the screen
+      
+      // Create temporary canvas to get text path
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.font = `${fontSize}px 'Dancing Script', cursive`;
+      tempCtx.textAlign = 'center';
+      tempCtx.textBaseline = 'middle';
+      tempCtx.fillStyle = 'white';
+      tempCtx.fillText(text, centerX, centerY);
+      
+      // Get text pixels
+      const imageData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
+      const textPixels = [];
+      
+      for (let x = 0; x < canvas.width; x += 3) {
+        for (let y = 0; y < canvas.height; y += 3) {
+          const index = (y * canvas.width + x) * 4;
+          if (imageData.data[index + 3] > 128) {
+            textPixels.push({ x, y });
+          }
+        }
+      }
+      
+      // Store text pixels for continuous attraction
+      window.currentTextPixels = textPixels;
+      
+      // Convert ALL existing particles to text particles
+      const allExistingParticles = [...particles, ...trailParticles];
+      particles.length = 0;
+      trailParticles.length = 0;
+      
+      // Assign existing particles to text positions
+      allExistingParticles.forEach((particle, index) => {
+        if (index < textPixels.length) {
+          const targetPos = textPixels[index];
+          const textParticle = new TextParticle(targetPos.x, targetPos.y);
+          textParticle.x = particle.x;
+          textParticle.y = particle.y;
+          textParticle.size = particle.size || 3;
+          textParticle.originalColor = particle.color || '#ffffff';
+          textParticles.push(textParticle);
+        }
+      });
+      
+      // Create additional particles if needed
+      for (let i = allExistingParticles.length; i < textPixels.length; i++) {
+        const targetPos = textPixels[i];
+        const textParticle = new TextParticle(targetPos.x, targetPos.y);
+        textParticle.originalColor = '#ff69b4';
+        textParticles.push(textParticle);
+      }
+      
+      // Clear text after 8 seconds
+      setTimeout(() => {
+        window.currentTextPixels = null;
+        textParticles.forEach(particle => {
+          particle.startDissolve();
+        });
+        
+        setTimeout(() => {
+          textParticles.length = 0;
+          isFormingText = false;
+        }, 3000);
+      }, 8000);
+    }
+    
+    // Text Particle constructor
+    function TextParticle(targetX, targetY) {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.targetX = targetX;
+      this.targetY = targetY;
+      this.originalSize = Math.random() * 3 + 2;
+      this.size = this.originalSize;
+      this.targetSize = 1.5;
+      this.alpha = 0;
+      this.phase = 'forming';
+      this.life = 1;
+      this.originalColor = '#ff69b4';
+    }
+    
+    TextParticle.prototype.update = function() {
+      if (this.phase === 'forming') {
+        const dx = this.targetX - this.x;
+        const dy = this.targetY - this.y;
+        
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+          this.x += dx * 0.08;
+          this.y += dy * 0.08;
+          this.alpha = Math.min(this.alpha + 0.03, 1);
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const maxDistance = Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height);
+          const progress = 1 - (distance / maxDistance);
+          this.size = this.originalSize + (this.targetSize - this.originalSize) * progress;
+        } else {
+          this.phase = 'stable';
+          this.alpha = 1;
+          this.size = this.targetSize;
+        }
+      } else if (this.phase === 'stable') {
+        this.x += Math.sin(Date.now() * 0.001 + this.targetX * 0.01) * 0.3;
+        this.y += Math.cos(Date.now() * 0.001 + this.targetY * 0.01) * 0.2;
+        this.size = this.targetSize;
+      } else if (this.phase === 'dissolving') {
+        this.alpha -= 0.008;
+        this.x += (Math.random() - 0.5) * 1;
+        this.y += (Math.random() - 0.5) * 1;
+        this.size = Math.min(this.size + 0.05, this.originalSize);
+        this.life = Math.max(0, this.alpha);
+      }
+    };
+    
+    TextParticle.prototype.draw = function() {
+      if (this.alpha <= 0.01) return;
+      
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, this.alpha);
+      
+      let color = this.originalColor;
+      if (color === '#ffffff') {
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 2);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.6)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = gradient;
+      } else {
+        const rgb = hexToRgb(color);
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 2);
+        gradient.addColorStop(0, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1)`);
+        gradient.addColorStop(0.5, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6)`);
+        gradient.addColorStop(1, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0)`);
+        ctx.fillStyle = gradient;
+      }
+      
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    };
+    
+    TextParticle.prototype.startDissolve = function() {
+      this.phase = 'dissolving';
+    };
+    
+    // Helper function to convert hex to RGB
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : {r: 255, g: 105, b: 180};
+    }
   });
   
